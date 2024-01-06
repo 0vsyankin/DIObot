@@ -4,25 +4,26 @@ import logging
 import os
 
 from dotenv import load_dotenv
-from aiogram import Bot, Dispatcher, F
+from aiogram import Bot, Dispatcher
+from aiogram.filters import Command
 from aiogram.types import Message
 
-load_dotenv()
 
-bot = Bot(os.getenv('TOKEN'))
-dp = Dispatcher()
+from core.handlers import games
+from core.handlers import botCommands
 
-
-@dp.message(F.text == '/start')
-async def start(message: Message):
-    start_msg = await message.answer(f'Привет, <tg-spoiler>{message.from_user.username}</tg-spoiler>')
-    await message.delete()
-    await asyncio.sleep(15)
-    await bot.delete_message(chat_id=start_msg.chat.id, message_id=start_msg.message_id)
+load_dotenv(dotenv_path='/Users/ovsa/Desktop/DIObot/.env')
 
 
 async def main():
-    # logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO)
+    bot = Bot(os.getenv('BOT_TOKEN'), parse_mode="HTML")
+    dp = Dispatcher()
+
+    dp.include_routers(
+        games.router,
+        botCommands.router
+    )
 
     try:
         # удаление ненужных обновлений
